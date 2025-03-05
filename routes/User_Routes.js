@@ -1,18 +1,27 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 const {
   registerUser,
   loginUser,
   getMyProfile,
   deleteUser,
-  UpdateUserProfile
-} = require('../controllers/User_Controller')
-const { protect , adminValidator} = require('../middleware/User_Validator')
+  updateUserProfile // Changed to match the updated naming convention
+} = require('../controllers/User_Controller');
+const { protect, adminValidator } = require('../middleware/authMiddleware');
 
-router.post('/', registerUser)
-router.post('/login', loginUser)
-router.get('/profile', protect, getMyProfile)
+// User registration
+router.post('/', registerUser);
+
+// User login
+router.post('/login', loginUser);
+
+// Get user profile
+router.get('/profile', protect, getMyProfile);
+
+// Delete user (admin only)
 router.delete('/users/:id', protect, adminValidator, deleteUser);
-router.put('/users/profile', protect, UpdateUserProfile);
 
-module.exports = router
+// Update user profile
+router.put('/users/profile', protect, updateUserProfile); // Changed to match the updated naming convention
+
+module.exports = router;
