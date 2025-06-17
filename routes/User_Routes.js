@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const {
   registerUser,
+  checkAuth,
+  getAllUsers,
   loginUser,
   getMyProfile,
   deleteUser,
@@ -14,14 +16,15 @@ router.post('/', registerUser);
 
 // User login
 router.post('/login', loginUser);
+router.post('/check-auth', protect ,checkAuth);
 
 // Get user profile
 router.get('/profile', protect, getMyProfile);
 
 // Delete user (admin only)
-router.delete('/users/:id', protect, adminValidator, deleteUser);
+router.delete('/:id', protect, adminValidator, deleteUser);
 
 // Update user profile
-router.put('/users/profile', protect, updateUserProfile); // Changed to match the updated naming convention
-
+router.put('/profile', protect, updateUserProfile); // Changed to match the updated naming convention
+router.get('/', protect, getAllUsers);
 module.exports = router;

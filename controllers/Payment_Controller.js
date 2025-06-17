@@ -1,5 +1,7 @@
 const chapa = require('../lib/chapa'); // Import chapa instance
+const User = require('../models/User_Model'); // Adjust the path as necessary
 const request = require('request');
+const axios = require('axios');
 
 // Payment processing
 exports.processPayment = async (req, res) => {
@@ -20,54 +22,56 @@ exports.processPayment = async (req, res) => {
 
     try {
         // Initialize the transaction with Chapa
-        const response = await chapa.initialize({
-            first_name: req.user.first_name,
-            last_name: req.user.last_name,
-            email: req.user.email,
-            phone_number: req.user.phone_number,
-            currency: 'ETB',
-            amount: amount.toString(),
-            tx_ref: tx_ref,
-            callback_url: 'http://localhost:3002/api/payment/verify',
-            customization: {
-                title: 'Test Title',
-                description: 'Test Description',
+        const options = {
+            method: 'POST',
+            url: 'https://api.chapa.co/v1/transaction/initialize',
+            headers: {
+                'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+                'Content-Type': 'application/json'
             },
-        });
+            body: JSON.stringify({
+                amount: amount.toString(),
+                currency: 'ETB',
+                email: req.user.email,
+                first_name: req.user.first_name,
+                last_name: req.user.last_name,
+                phone_number: req.user.phone_number,
+                tx_ref: tx_ref,
+                callback_url: 'http://localhost:3002/api/payment/verify/' + tx_ref,
+            
+                meta: {
+                    hide_receipt: true
+                }
+            })
+        };
 
-        
-        // Check the response status
-        if (response.status === "success") {
-            return res.json({
-                msg: "Order created successfully. Perform payment.",
-                paymentUrl: response.data.checkout_url,
-            });
-        } else {
-            return res.status(500).json({
-                msg: response.message || "Something went wrong",
-            });
-        }
+        request(options, function (error, response) {
+            if (error) {
+                console.error('Payment processing error:', error);
+                return res.status(500).json({ msg: 'An unexpected error occurred', details: error });
+            }
+
+            const body = JSON.parse(response.body);
+            if (response.statusCode === 200 && body.status === 'success') {
+                return res.json({
+                    msg: "Order created successfully. Perform payment.",
+                    paymentUrl: body.data.checkout_url,
+                });
+            } else {
+                return res.status(500).json({
+                    msg: body.message || "Something went wrong",
+                });
+            }
+        });
     } catch (error) {
         console.error('Payment processing error:', error);
-
-        // Improved error handling
-        if (error.response) {
-            // Return specific message from Chapa if available
-            return res.status(error.response.status || 500).json({
-                msg: error.response.data.message || 'An error occurred during the payment process',
-                details: error.response.data || {},
-            });
-        } else {
-            return res.status(500).json({
-                msg: error.message || 'An unexpected error occurred',
-            });
-        }
+        return res.status(500).json({ msg: error.message || 'An unexpected error occurred' });
     }
 };
 
 // Payment verification
 exports.verifyPayment = async (req, res) => {
-    const { tx_ref } = req.params; // This should retrieve the tx_ref from the URL
+    const { tx_ref } = req.params;
 
     // Validate input
     if (!tx_ref) {
@@ -75,53 +79,56 @@ exports.verifyPayment = async (req, res) => {
     }
 
     try {
-        // Verify the transaction using Chapa SDK
-        const response = await chapa.verify({ tx_ref });
-        console.log('Request parameters:', req.params);
-        console.log(`Chapa Response: ${JSON.stringify(response)}`);
+        const options = {
+            method: 'GET',
+            url: `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
+            headers: {
+                'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
+            }
+        };
 
+        request(options, function (error, response) {
+            if (error) {
+                console.error('Payment verification error:', error);
+                return res.status(500).json({ error: 'Verification failed', details: error });
+            }
 
-        // Respond with the verification details
-        res.json({
-            message: response.message,
-            status: response.status,
-            data: response.data,
+            const body = JSON.parse(response.body);
+            res.json({
+                message: body.message,
+                status: body.status,
+                data: body.data,
+            });
         });
     } catch (error) {
-        // Handle error from Chapa
         console.error('Payment verification error:', error);
         res.status(500).json({ error: 'Verification failed', details: error.message });
     }
 };
 
+// Get all transactions
 exports.getAllTransactions = async (req, res) => {
-    try {
-        // Fetch all transactions from Chapa
-        const response = await chapa.getTransactions();
-
-        // Check the response status
-        if (response.status === "success") {
-            return res.json({
-                msg: "Transactions retrieved successfully.",
-                data: response.data.transactions,
-            });
-        } else {
-            return res.status(500).json({
-                msg: response.message || "Failed to retrieve transactions.",
-            });
+    const options = {
+        method: 'GET',
+        url: 'https://api.chapa.co/v1/transactions',
+        headers: {
+            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
         }
+    };
+
+    try {
+        const response = await axios.request(options);
+        const transactions = response.data.data.transactions; // Extract the transactions
+
+        res.json({
+            msg: "Transactions retrieved successfully.",
+            data: transactions, // Return only the transactions data
+        });
     } catch (error) {
         console.error('Error fetching transactions:', error);
-
-        // Improved error handling
-        const status = error.response ? error.response.status : 500;
-        const message = error.response ? error.response.data.message : 'An unexpected error occurred';
-        
-        return res.status(status).json({ msg: message, details: error.response?.data || {} });
+        res.status(500).json({ msg: 'An unexpected error occurred', details: error.message });
     }
 };
-
-
 
 // Get wallet balance
 exports.getWalletBalance = async (req, res) => {
@@ -129,7 +136,7 @@ exports.getWalletBalance = async (req, res) => {
         method: 'GET',
         url: 'https://api.chapa.co/v1/balances',
         headers: {
-            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` // Use the secret key from .env
+            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
         }
     };
 
@@ -139,12 +146,11 @@ exports.getWalletBalance = async (req, res) => {
             return res.status(500).json({ msg: 'An unexpected error occurred', details: error });
         }
 
-        // Check if the response status code is 200
         if (response.statusCode === 200) {
             const body = JSON.parse(response.body);
             return res.json({
                 msg: "Wallet balance retrieved successfully.",
-                balance: body// Adjust based on actual response structure
+                balance: body // Adjust based on actual response structure
             });
         } else {
             console.error('Failed to retrieve wallet balance:', response.body);
@@ -162,7 +168,7 @@ exports.getBanks = async (req, res) => {
         method: 'GET',
         url: 'https://api.chapa.co/v1/banks',
         headers: {
-            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`, // Use your secret key from .env
+            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
         }
     };
 
@@ -172,12 +178,11 @@ exports.getBanks = async (req, res) => {
             return res.status(500).json({ msg: 'An unexpected error occurred', details: error });
         }
 
-        // Check if the response status code is 200
         if (response.statusCode === 200) {
             const body = JSON.parse(response.body);
             return res.json({
                 msg: "Banks retrieved successfully.",
-                data: body, // Adjust based on actual response structure
+                data: body,
             });
         } else {
             console.error('Failed to retrieve banks:', response.body);
@@ -190,121 +195,67 @@ exports.getBanks = async (req, res) => {
     });
 };
 
-// Transfer money using URL
-exports.transferbasedonurl = async (req, res) => {
-    const { account_name, account_number, amount, currency, bank_code } = req.body;
-
-    // Validate input
-    if (!account_name || !account_number || !amount || isNaN(amount) || Number(amount) <= 0 || !currency || !bank_code) {
-        return res.status(400).json({ message: 'Valid account details, amount, and bank code are required' });
-    }
-
-    const options = {
-        method: 'POST',
-        url: 'https://api.chapa.co/v1/transfers',
-        headers: {
-            'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`, // Use your secret key from .env
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            account_name,
-            account_number,
-            amount: amount.toString(),
-            currency,
-            reference: `transfer-${Date.now()}`,
-            bank_code: Number(bank_code),
-        })
-    };
-
-    request(options, function (error, response) {
-        if (error) {
-            console.error('Transfer error:', error);
-            return res.status(500).json({ msg: 'An unexpected error occurred', details: error });
-        }
-
-        // Check if the response status code is 200
-        if (response.statusCode === 200) {
-            const body = JSON.parse(response.body);
-            return res.json({
-                msg: "Transfer initiated successfully.",
-                data: body, // Adjust based on actual response structure
-            });
-        } else {
-            console.error('Failed to initiate transfer:', response.body);
-            const body = JSON.parse(response.body);
-            return res.status(response.statusCode).json({
-                msg: body.message || "Failed to initiate transfer.",
-                details: body
-            });
-        }
-    });
-};
+// Transfer money
 
 
-// Add this function in your Payment_Controller.js
-// Add this function in your Payment_Controller.js
-// Add this function in your Payment_Controller.js
-exports.transferMoney = async (req, res) => {
-    const { account_name, account_number, amount, currency, bank_code } = req.body;
+// Transfer money function
+// exports.transferMoney = async (req, res) => {
+//     const { userId, amount, bank_code } = req.body; // Get userId from request body
 
-    // Validate input
-    if (!account_name || !account_number || !amount || isNaN(amount) || Number(amount) <= 0 || !currency || !bank_code) {
-        return res.status(400).json({ message: 'Valid account details, amount, and bank code are required' });
-    }
+//     // Validate input
+//     if (!userId || !amount || isNaN(amount) || Number(amount) <= 0 || !bank_code) {
+//         return res.status(400).json({ message: 'Valid user ID, amount, and bank code are required' });
+//     }
 
-    try {
-        console.log(`Initiating transfer...`);
+//     try {
+//         // Find user by ID
+//         const user = await User.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
-        const response = await chapa.transfer({
-            account_name,
-            account_number,
-            amount: amount.toString(), // Ensure amount is a string
-            currency,
-            reference: `transfer-${Date.now()}`, // Unique reference for the transfer
-            bank_code: Number(bank_code), // Ensure bank_code is a number
-        });
+//         const { account_name, account_number } = user; // Get account details from user
 
-        console.log(`Transfer response received`);
+//         const options = {
+//             method: 'POST',
+//             url: 'https://api.chapa.co/v1/transfers',
+//             headers: {
+//                 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 account_name,
+//                 account_number,
+//                 amount: amount.toString(),
+//                 currency: "ETB", // Default currency
+//                 reference: `transfer-${Date.now()}`,
+//                 bank_code: Number(bank_code),
+//             })
+//         };
 
-        // Check response status and handle accordingly
-        if (response.status === "success") {
-            return res.json({
-                msg: "Transfer initiated successfully.",
-                data: response.data,
-            });
-        } else {
-            // Handle failure
-            console.error('Transfer failed:', response);
-            return res.status(500).json({
-                msg: response.message || "Failed to initiate transfer.",
-                details: response
-            });
-        }
-    } catch (error) {
-        console.error('Transfer error:', error);
+//         request(options, function (error, response) {
+//             if (error) {
+//                 console.error('Transfer error:', error);
+//                 return res.status(500).json({ msg: 'An unexpected error occurred', details: error });
+//             }
 
-        // Handle various error scenarios
-        let status = 500; // Default to 500 for unexpected errors
-        let message = 'An unexpected error occurred';
-
-        // Check if the error has a message and ensure it is a string
-        if (error.message) {
-            message = typeof error.message === 'string' ? error.message : JSON.stringify(error.message);
-        }
-
-        // Additional checks for network errors or other issues
-        if (error.code) {
-            console.error('Error code:', error.code); // Log error code for debugging
-            if (error.code === 'ECONNREFUSED') {
-                message = 'Connection to the API was refused. Please check the API endpoint.';
-            } else if (error.code === 'ENOTFOUND') {
-                message = 'API endpoint not found. Please check the URL.';
-            }
-            // Add more specific error handling as needed
-        }
-
-        return res.status(status).json({
-            msg: message
-        });
-    }
-};
+//             if (response.statusCode === 200) {
+//                 const body = JSON.parse(response.body);
+//                 return res.json({
+//                     msg: "Transfer initiated successfully.",
+//                     data: body,
+//                 });
+//             } else {
+//                 console.error('Failed to initiate transfer:', response.body);
+//                 const body = JSON.parse(response.body);
+//                 return res.status(response.statusCode).json({
+//                     msg: body.message || "Failed to initiate transfer.",
+//                     details: body
+//                 });
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Error fetching user:', error);
+//         return res.status(500).json({ message: 'An unexpected error occurred', details: error });
+//     }
+// };

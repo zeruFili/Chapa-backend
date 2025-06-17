@@ -5,13 +5,10 @@ const { protect, adminValidator } = require('../middleware/authMiddleware'); // 
 const router = express.Router();
 
 router.post('/', protect, paymentController.processPayment);
-
-// Change the route for verification to use a URL parameter
 router.post('/verify/:tx_ref', protect, paymentController.verifyPayment);
-// router.get('/', protect, transactionController.getAllTransactions);
 router.get('/', protect, paymentController.getAllTransactions);
 router.get('/balance', protect, paymentController.getWalletBalance);
-router.get('/banks',  paymentController.getBanks);
-// Add this route in your payment routes file
-router.post('/transfer', protect, paymentController.transferMoney);
+router.get('/banks', protect, paymentController.getBanks);
+// router.post('/transfer', protect, paymentController.transferMoney);
+
 module.exports = router;

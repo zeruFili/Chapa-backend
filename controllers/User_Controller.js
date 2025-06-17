@@ -6,9 +6,17 @@ require('dotenv').config();
 
 // Register a new user
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, first_name, last_name, phone_number } = req.body;
+  const { email, password, first_name, last_name, phone_number } = req.body;
+  console.log('Received data:', {
+    email,
+    password,
+    first_name,
+    last_name,
+    phone_number,
+  });
 
-  if (!name || !email || !password || !first_name || !last_name || !phone_number) {
+
+  if ( !email || !password || !first_name || !last_name || !phone_number ) {
     res.status(400);
     throw new Error("Please add all fields");
   }
@@ -27,20 +35,22 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // Create user
   const user = await User.create({
-    name,
+    
     email,
     password: hashedPassword,
-    role,
+   
     first_name,
     last_name,
-    phone_number,
+    phone_number
   });
 
   if (user) {
     res.status(201).json({
       _id: user._id,
-      name: user.name,
+      first_name: user.first_name, // Updated to include first_name
+      last_name: user.last_name,     // Updated to include last_name
       email: user.email,
+      
       token: generateToken(user._id),
     });
   } else {
@@ -53,16 +63,25 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+
   // Check for user email
   const user = await User.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
-    });
+  if (user) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      res.json({
+        _id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role : user.role,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(400);
+      throw new Error("Invalid credentials");
+    }
   } else {
     res.status(400);
     throw new Error("Invalid credentials");
@@ -135,10 +154,37 @@ const getMyProfile = (req, res) => {
   res.json(req.user);
 };
 
+ const checkAuth = async (req, res) => {
+  try {
+      const user = req.user; // Use req.user from token verification
+      if (!user) {
+          return res.status(400).json({ success: false, message: "User not found" });
+      }
+
+      res.status(200).json({ success: true, user });
+  } catch (error) {
+      console.log("Error in checkAuth ", error);
+      res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Get all users
+// Get all users
+const getAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find({}, '-password'); // Exclude password field
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve users", error: error.message });
+  }
+});
+
 module.exports = {
+  checkAuth,
   registerUser,
   loginUser,
   getMyProfile,
   updateUserProfile,
   deleteUser,
+  getAllUsers
 };
