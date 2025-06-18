@@ -1,70 +1,48 @@
-const Bank = require('../models/Bank_Model'); // Adjust the path as necessary
+const bankService = require("../services/bank.service");
+const catchAsync = require("../utils/catchAsync");
+const httpStatus = require("http-status");
 
-// Create a new bank record
-exports.createBank = async (req, res) => {
-  try {
-    const user = req.user._id;
-    const {  accountNumber, bankCode, amount, bankName } = req.body;
-    const newBank = new Bank({
-      user,
-      accountNumber,
-      bankCode,
-      amount,
-      bankName
-    });
-    await newBank.save();
-    return res.status(201).json({ message: 'Bank record created successfully', newBank });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error creating bank record', error });
-  }
-};
+const createBank = catchAsync(async (req, res) => {
+  const { accountNumber, bankCode, amount, bankName } = req.body;
+  const bank = await bankService.createBank(req.user._id, accountNumber, bankCode, amount, bankName);
+  res.status(httpStatus.default.CREATED).json({
+    success: true,
+    message: "Bank record created successfully",
+    bank,
+  });
+});
 
-// Update an existing bank record
-exports.updateBank = async (req, res) => {
-    const user = req.user._id;
-  const {  bankId } = req.body; // Get user ID from request body
+const updateBank = catchAsync(async (req, res) => {
+  const { bankId } = req.body;
+  const bank = await bankService.updateBank(req.user._id, bankId, req.body);
+  res.status(httpStatus.default.OK).json({
+    success: true,
+    message: "Bank record updated successfully",
+    bank,
+  });
+});
 
-  try {
-    const updatedBank = await Bank.findOneAndUpdate(
-      { _id: bankId, user }, // Ensure the bank belongs to the user
-      req.body,
-      { new: true }
-    );
-    if (!updatedBank) {
-      return res.status(404).json({ message: 'Bank record not found or does not belong to the user' });
-    }
-    return res.status(200).json({ message: 'Bank record updated successfully', updatedBank });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error updating bank record', error });
-  }
-};
+const deleteBank = catchAsync(async (req, res) => {
+  const { bankId } = req.body;
+  await bankService.deleteBank(req.user._id, bankId);
+  res.status(httpStatus.default.OK).json({
+    success: true,
+    message: "Bank record deleted successfully",
+  });
+});
 
-// Delete a bank record
-exports.deleteBank = async (req, res) => {
-    const user = req.user._id;
-  const { bankId } = req.body; // Get user ID from request body
+const getBanksByUserId = catchAsync(async (req, res) => {
+  const banks = await bankService.getBanksByUserId(req.user._id);
+  res.status(httpStatus.default.OK).json({
+    success: true,
+    message: "Bank records retrieved successfully",
+    banks,
+  });
+});
 
-  try {
-    const deletedBank = await Bank.findOneAndDelete({ _id: bankId, user }); // Ensure the bank belongs to the user
-    if (!deletedBank) {
-      return res.status(404).json({ message: 'Bank record not found or does not belong to the user' });
-    }
-    return res.status(200).json({ message: 'Bank record deleted successfully' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error deleting bank record', error });
-  }
-};
-
-// View the list of banks based on user ID
-exports.getBanksByUserId = async (req, res) => {
-  // const { user } = req.query; // Get user ID from query parameters
-   const user = req.user._id;
-  console.log(user);
-  
-  try {
-    const banks = await Bank.find({ user });
-    return res.status(200).json({ message: 'Bank records retrieved successfully', banks });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error retrieving bank records', error });
-  }
+module.exports = {
+  createBank,
+  updateBank,
+  deleteBank,
+  getBanksByUserId,
 };
