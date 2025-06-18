@@ -12,6 +12,6 @@ router.put('/', protect, bankController.updateBank);
 router.delete('/', protect, bankController.deleteBank);
 
 // View the list of  based on user ID
-router.get('/', bankController.getBanksByUserId);
+router.get('/', protect, bankController.getBanksByUserId);
 
 module.exports = router;

@@ -7,14 +7,20 @@ const transactionRoutes = require('./routes/Transaction_Route');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const expressWinston = require('express-winston'); // Ensure express-winston is imported
-const logger = require('./logger'); // Import your logger
+const logger = require('./config/logger'); // Import your logger
 require('dotenv').config();
-
+const config = require('./config/config');
 const app = express();
+const cookieParser = require("cookie-parser");
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+// app.use(cors({
+//     origin: 'http://localhost:3000', // Replace with your frontend URL
+//     credentials: true, // Allow cookies to be sent
+// })); 
+app.use(cookieParser());
+
 
 // Request logging middleware
 app.use(expressWinston.logger({
@@ -34,22 +40,22 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://0.0.0.0:27017/chapa', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB', error);
+mongoose.connect(config.dbConnection, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => logger.info('Database connected'))
+  .catch(err => {
+    logger.error('Database connection error:', err);
+    process.exit(1); // Exit the process on connection error
   });
+
+const PORT = config.port;
 
 // Routes
 app.use('/api/user', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/bank', bankRoutes);
 app.use('/api/transaction', transactionRoutes);
+
+
 
 // Error logging middleware
 app.use(expressWinston.errorLogger({
@@ -58,7 +64,7 @@ app.use(expressWinston.errorLogger({
 }));
 
 // Use PORT from .env file or default to 3000
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 // Start the server
 app.listen(PORT, () => {

@@ -1,38 +1,64 @@
 const jwt = require("jsonwebtoken");
-const asyncHandler = require("express-async-handler");
-const User = require("../models/User_Model");
-require('dotenv').config();
+const User = require("../models/User_Model.js");
 
+const protect = async (req, res, next) => {
+	try {
+		console.log("zeru",req.cookies);
+		const accessToken = req.cookies.accessToken;
+		console.log("zeru",req.cookies);
 
-const protect = asyncHandler(async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const secret = process.env.SECRET_KEY; 
-      const decode = jwt.verify(token, secret);
-      // valid token
-      req.user = await User.findById(decode.id).select("-password");
+		if (!accessToken) {
+			return res.status(401).json({ message: "Unauthorized - No access token provided" });
+		}
 
-      next();
-    } catch (error) {
-      res.status(401).json({ error: "Not authorized" });
-    }
-  }
+		try {
+			const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+			const user = await User.findById(decoded.userId).select("-password");
 
-  if (!token) {
-    res.status(401).json({ error: "Token not found" });
-  }
-});
-const adminValidator = (req, res, next) => {
-  if (req.user.role === "admin") {
-    next();
-  } else {
-    res.status(403).json({ error: "Protected only for admin" });
-  }
+			if (!user) {
+				return res.status(401).json({ message: "User not found" });
+			}
+
+			console.log("User information:", {
+				first_name: user.first_name,
+				last_name: user.last_name,
+				email: user.email,
+				phone_number: user.phone_number,
+			});
+
+			// Attach user information to req.user
+			req.user = {
+				_id: user._id,
+				first_name: user.first_name,
+				last_name: user.last_name,
+				email: user.email,
+				phone_number: user.phone_number,
+				role: user.role, // Include the role here
+			};
+
+			next();
+		} catch (error) {
+			if (error.name === "TokenExpiredError") {
+				return res.status(401).json({ message: "Unauthorized - Access token expired" });
+			}
+			throw error;
+		}
+	} catch (error) {
+		console.log("Error in protect middleware", error.message);
+		return res.status(401).json({ message: "Unauthorized - Invalid access token" });
+	}
 };
 
-module.exports = { protect , adminValidator};
+const adminValidator = (req, res, next) => {
+	console.log("User role:", req.user.role);
+	if (req.user && req.user.role === "admin") {
+		next();
+	} else {
+		return res.status(403).json({ message: "Access denied - Admin only" });
+	}
+};
+
+module.exports = {
+	protect,
+	adminValidator,
+};

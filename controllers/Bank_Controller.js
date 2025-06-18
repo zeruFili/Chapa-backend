@@ -57,7 +57,8 @@ exports.deleteBank = async (req, res) => {
 
 // View the list of banks based on user ID
 exports.getBanksByUserId = async (req, res) => {
-  const { user } = req.query; // Get user ID from query parameters
+  // const { user } = req.query; // Get user ID from query parameters
+   const user = req.user._id;
   console.log(user);
   
   try {

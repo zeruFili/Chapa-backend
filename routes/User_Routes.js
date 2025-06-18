@@ -1,30 +1,52 @@
-const express = require('express');
-const router = express.Router();
+const express = require("express");
 const {
-  registerUser,
-  checkAuth,
-  getAllUsers,
-  loginUser,
-  getMyProfile,
+   signup,
+  verifyEmail,
+  login,
+  logout,
+  forgotPassword,
+  resetPassword,
   deleteUser,
-  updateUserProfile // Changed to match the updated naming convention
-} = require('../controllers/User_Controller');
-const { protect, adminValidator } = require('../middleware/authMiddleware');
+  updateUserProfile,
+  getMyProfile,
+  getAllUsers,
+} = require("../controllers/User_Controller"); // Import all required controller functions
+
+const {
+  signupSchema,
+  loginSchema,
+  updateUserProfileSchema,
+  deleteUserSchema,
+  forgotPasswordSchema,
+	resetPasswordSchema,
+	verifyEmailSchema
+} = require("../validations/user.validation");
+const { protect, adminValidator } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validate");
+
+const router = express.Router();
 
 // User registration
-router.post('/', registerUser);
+router.post("/signup", validate(signupSchema), signup);
 
 // User login
-router.post('/login', loginUser);
-router.post('/check-auth', protect ,checkAuth);
+router.post("/login", validate(loginSchema), login);
 
 // Get user profile
-router.get('/profile', protect, getMyProfile);
-
-// Delete user (admin only)
-router.delete('/:id', protect, adminValidator, deleteUser);
+router.get("/profile", protect, getMyProfile);
 
 // Update user profile
-router.put('/profile', protect, updateUserProfile); // Changed to match the updated naming convention
-router.get('/', protect, getAllUsers);
+router.put("/profile", protect, validate(updateUserProfileSchema), updateUserProfile);
+
+// Delete user (admin only)
+router.delete("/:id", protect, adminValidator, validate(deleteUserSchema), deleteUser);
+
+// Get all users
+router.get("/", protect, adminValidator, getAllUsers);
+
+router.post("/logout", logout);
+router.post("/verify-email", validate(verifyEmailSchema) , verifyEmail);
+router.post("/forgot-password",validate(forgotPasswordSchema) , forgotPassword);
+router.post("/reset-password/:token", validate(resetPasswordSchema) , resetPassword);
+
 module.exports = router;

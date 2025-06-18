@@ -1,52 +1,45 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
+const mongoose = require("mongoose");
 
-// Define the user schema
-const userSchema = new mongoose.Schema({
-  
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
-  first_name: {
-    type: String,
-    required: true // Added field for first name
-  },
-  last_name: {
-    type: String,
-    required: true // Added field for last name
-  },
-  phone_number: {
-    type: String,
-    required: true // Added field for phone number
-  }
-});
+const userSchema = new mongoose.Schema(
+	{
+		email: {
+			type: String,
+			required: true,
+			unique: true,
+		},
+		password: {
+			type: String,
+			required: true,
+		},
+		first_name: {
+			type: String,
+			required: true,
+		},
+		last_name: {
+			type: String,
+			required: true,
+		},
+		lastLogin: {
+			type: Date,
+			default: Date.now,
+		},
+		isVerified: {
+			type: Boolean,
+			default: false,
+		},
+		resetPasswordToken: String,
+		resetPasswordExpiresAt: Date,
+		verificationToken: String,
+		verificationTokenExpiresAt: Date,
+		role: {
+			type: String,
+			enum: ['user', 'admin'],
+			default: 'user', // Default role is 'user'
+		},
+	},
+	{ timestamps: true }
+);
 
-// Define a static method for validating user input
-userSchema.statics.validateUser = function(user) {
-  const schema = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    first_name: Joi.string().required(),
-    last_name: Joi.string().required(),
-    phone_number: Joi.string().required()// Added validation for account number
-  });
-
-  return schema.validate(user);
-};
-
-// Create the User model
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

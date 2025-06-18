@@ -1,190 +1,144 @@
-const User = require('../models/User_Model');
-const asyncHandler = require('express-async-handler');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const User = require("../models/User_Model.js");
+const authService = require("../services/auth.service.js");
+const setCookies = require("../utils/setCookies.js"); // Cookie setting logic
+const catchAsync = require("../utils/catchAsync.js");
+const crypto = require("crypto");
+const httpStatus = require("http-status"); // Assuming you're using a package for HTTP status codes
 
-// Register a new user
-const registerUser = asyncHandler(async (req, res) => {
+const signup = catchAsync(async (req, res) => {
   const { email, password, first_name, last_name, phone_number } = req.body;
-  console.log('Received data:', {
-    email,
-    password,
-    first_name,
-    last_name,
-    phone_number,
-  });
 
+  const { user, accessToken, refreshToken } = await authService.createUser(email, password, first_name, last_name, phone_number);
+  setCookies(res, accessToken, refreshToken);
 
-  if ( !email || !password || !first_name || !last_name || !phone_number ) {
-    res.status(400);
-    throw new Error("Please add all fields");
-  }
-
-  // Check if user exists
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
-    res.status(400);
-    throw new Error("User already exists");
-  }
-
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // Create user
-  const user = await User.create({
-    
-    email,
-    password: hashedPassword,
-   
-    first_name,
-    last_name,
-    phone_number
-  });
-
-  if (user) {
-    res.status(201).json({
+  res.status(httpStatus.default.CREATED).json({
+    success: true,
+    message: "User created successfully",
+    user: {
       _id: user._id,
-      first_name: user.first_name, // Updated to include first_name
-      last_name: user.last_name,     // Updated to include last_name
+      first_name: user.first_name,
+      last_name: user.last_name,
       email: user.email,
-      
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400);
-    throw new Error("User creation failed");
-  }
+      role: user.role,
+    },
+  });
 });
 
-// Login user
-const loginUser = asyncHandler(async (req, res) => {
+const verifyEmail = catchAsync(async (req, res) => {
+  const { code } = req.body;
+
+  const user = await authService.verifyUserEmail(code);
+  await authService.sendWelcomeEmail(user.email, user.first_name);
+
+  res.status(httpStatus.default.OK).json({
+    success: true,
+    message: "Email verified successfully",
+    user: {
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+    },
+  });
+});
+
+const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
 
+  const { user, accessToken, refreshToken } = await authService.loginUser(email, password);
+  setCookies(res, accessToken, refreshToken);
 
-  // Check for user email
-  const user = await User.findOne({ email });
-
-  if (user) {
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
-      res.json({
-        _id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        role : user.role,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(400);
-      throw new Error("Invalid credentials");
-    }
-  } else {
-    res.status(400);
-    throw new Error("Invalid credentials");
-  }
-});
-
-// Generate JWT
-const generateToken = (id) => {
-  const secret = process.env.SECRET_KEY; // Replace with your own secret key
-  return jwt.sign({ id }, secret, { expiresIn: '1h' }); // Adjust expiresIn as per your requirements
-};
-
-// Delete user
-const deleteUser = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
-
-  // Check if user exists
-  const user = await User.findById(userId);
-
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-
-  await user.remove();
-
-  res.status(200).json({ message: "User deleted" });
-});
-
-// Update user profile
-const updateUserProfile = asyncHandler(async (req, res) => {
-  const { name, email, password, first_name, last_name, phone_number } = req.body;
-  const userId = req.user._id;
-
-  // Check if user exists
-  const user = await User.findById(userId);
-
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-
-  // Update user fields
-  if (name) user.name = name;
-  if (email) user.email = email;
-  if (first_name) user.first_name = first_name;
-  if (last_name) user.last_name = last_name;
-  if (phone_number) user.phone_number = phone_number;
-  if (password) {
-    // Hash the new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    user.password = hashedPassword;
-  }
-
-  await user.save();
-
-  res.json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    phone_number: user.phone_number,
+  res.status(httpStatus.default.OK).json({
+    success: true,
+    message: "Logged in successfully",
+    user: {
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role,
+    },
   });
 });
 
-// Get user profile
-const getMyProfile = (req, res) => {
-  res.json(req.user);
-};
+const logout = catchAsync(async (req, res) => {
+  await authService.logoutUser(req.cookies.refreshToken);
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.status(httpStatus.default.OK).json({ success: true, message: "Logged out successfully" });
+});
 
- const checkAuth = async (req, res) => {
-  try {
-      const user = req.user; // Use req.user from token verification
-      if (!user) {
-          return res.status(400).json({ success: false, message: "User not found" });
-      }
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const resetToken = crypto.randomBytes(20).toString("hex");
 
-      res.status(200).json({ success: true, user });
-  } catch (error) {
-      console.log("Error in checkAuth ", error);
-      res.status(400).json({ success: false, message: error.message });
+  await authService.sendResetEmail(email, resetToken);
+  res.status(httpStatus.default.OK).json({ success: true, message: "Password reset link sent to your email" });
+});
+
+const resetPassword = catchAsync(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const user = await authService.resetUserPassword(token, password);
+  await authService.sendResetSuccessEmail(user.email);
+  res.status(httpStatus.default.OK).json({ success: true, message: "Password reset successful" });
+});
+const getProfile = catchAsync(async (req, res) => {
+  const user = await User.findById(req.userId).select("-password");
+  if (!user) {
+    return res.status(httpStatus.default.BAD_REQUEST).json({ success: false, message: "User not found" });
   }
-};
 
-// Get all users
-// Get all users
-const getAllUsers = asyncHandler(async (req, res) => {
-  try {
-    const users = await User.find({}, '-password'); // Exclude password field
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve users", error: error.message });
+  res.status(httpStatus.default.OK).json({ success: true, user });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+
+  await authService.deleteUser(userId);
+  res.status(httpStatus.default.OK).json({ success: true, message: "User deleted" });
+});
+
+const updateUserProfile = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const updates = req.body;
+
+  const user = await authService.updateUser(userId, updates);
+  res.status(httpStatus.default.OK).json({ success: true, user });
+});
+
+const getMyProfile = catchAsync(async (req, res) => {
+  const user = await authService.getUserById(req.user._id);
+  res.status(httpStatus.default.OK).json({ success: true, user });
+});
+
+const getAllUsers = catchAsync(async (req, res) => {
+  const users = await authService.getAllUsers();
+  res.status(httpStatus.default.OK).json({ success: true, users });
+});
+
+// Check Authentication
+const checkAuth = catchAsync(async (req, res) => {
+  const user = req.user; // Use req.user from token verification
+  if (!user) {
+    return res.status(httpStatus.default.BAD_REQUEST).json({ success: false, message: "User not found" });
   }
+
+  res.status(httpStatus.default.OK).json({ success: true, user });
 });
 
 module.exports = {
-  checkAuth,
-  registerUser,
-  loginUser,
-  getMyProfile,
-  updateUserProfile,
+  signup,
+  verifyEmail,
+  login,
+  logout,
+  forgotPassword,
+  resetPassword,
+  getProfile,
   deleteUser,
-  getAllUsers
+  updateUserProfile,
+  getMyProfile,
+  getAllUsers,
+  checkAuth, // Exporting checkAuth
 };
