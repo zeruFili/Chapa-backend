@@ -1,16 +1,25 @@
-const express = require('express');
-const { createTransaction, updateTransactionStatus, getAllTransactions } = require('../controllers/Transaction_Controller'); // Adjust the path as necessary
-const { protect, adminValidator } = require('../middleware/authMiddleware'); // Middleware to protect routes and get user info
+const express = require("express");
+const {
+    createTransaction,
+    updateTransactionStatus,
+    getAllTransactions,
+} = require("../controllers/Transaction_Controller");
+const {
+    createTransactionSchema,
+    updateTransactionStatusSchema,
+} = require("../validations/transaction.validation");
+const { protect } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
-// Route to create a new transaction
-router.post('/', protect, createTransaction);
+// Create a new transaction
+router.post("/", protect, validate(createTransactionSchema), createTransaction);
 
-// Route to update transaction status
-router.patch('/:transactionId', protect, adminValidator, updateTransactionStatus);
+// Update transaction status
+router.patch("/:transactionId", protect, validate(updateTransactionStatusSchema), updateTransactionStatus);
 
-// Route to get transaction details
-router.get('/', protect, adminValidator, getAllTransactions);
+// Get all transactions
+router.get("/", protect, getAllTransactions);
 
 module.exports = router;

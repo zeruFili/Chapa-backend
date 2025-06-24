@@ -3,9 +3,9 @@ const User = require("../models/User_Model.js");
 
 const protect = async (req, res, next) => {
 	try {
-		console.log("zeru",req.cookies);
+		
 		const accessToken = req.cookies.accessToken;
-		console.log("zeru",req.cookies);
+		
 
 		if (!accessToken) {
 			return res.status(401).json({ message: "Unauthorized - No access token provided" });

@@ -1,7 +1,15 @@
+const { checkAuth } = require("../controllers/User_Controller");
 const Bank = require("../models/Bank_Model");
 
 // Create a new bank record
 const createBank = async (userId, accountNumber, bankCode, amount, bankName) => {
+  // Check if the user already has a bank record
+  const existingBank = await Bank.findOne({ user: userId, accountNumber });
+  
+  if (existingBank) {
+    throw new Error("Bank record already exists.");
+  }
+
   const newBank = new Bank({
     user: userId,
     accountNumber,
@@ -9,6 +17,7 @@ const createBank = async (userId, accountNumber, bankCode, amount, bankName) => 
     amount,
     bankName,
   });
+
   await newBank.save();
   return newBank;
 };
