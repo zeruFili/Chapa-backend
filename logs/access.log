@@ -1,0 +1,80 @@
+remote-addr - POST /api/transactionl 500 29.722 ms Thunder Client (https://www.thunderclient.com)  Wed, 25 Jun 2025 08:33:24 GMT -error-message: httpStatus is not defined
+remote-addr - POST /api/user/login 500 1.887 ms Thunder Client (https://www.thunderclient.com)  Wed, 25 Jun 2025 08:33:32 GMT -error-message: httpStatus is not defined
+remote-addr - POST /api/user/login 404 19.327 ms Thunder Client (https://www.thunderclient.com)  Wed, 25 Jun 2025 08:35:10 GMT -error-message: Not found
+remote-addr - POST /api/users/login 200 634.468 ms Thunder Client (https://www.thunderclient.com) Wed, 25 Jun 2025 08:44:34 GMT
+remote-addr - POST /api/users/login 200 250.976 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 10:23:00 GMT
+remote-addr - POST /api/transaction 404 29.308 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 10:24:27 GMT -error-message: Not found
+remote-addr - POST /api/users/login 200 559.790 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:43:35 GMT
+remote-addr - POST /api/transaction 404 31.555 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 15:43:46 GMT -error-message: Not found
+remote-addr - POST /api/transactions 201 479.263 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:44:17 GMT
+remote-addr - PATCH /api/transactions/68514e769317cdb61d7007e6 500 419.495 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 15:45:58 GMT -error-message: -
+remote-addr - PATCH /api/transactions/685d6ad1f1e833fb498b84d1 200 42.125 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:46:23 GMT
+remote-addr - PATCH /api/transactions/685d6ad1f1e833fb498b84d1 200 74.555 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:46:35 GMT
+remote-addr - PATCH /api/transactions/685d6ad1f1e833fb498b84d1 200 2554.267 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:46:57 GMT
+remote-addr - PATCH /api/transactions/685d6ad1f1e833fb498b84d1 200 926.123 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:47:10 GMT
+remote-addr - POST /api/transactions 201 39.686 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:53:18 GMT
+remote-addr - POST /api/transactions/685d6ad1f1e833fb498b84d1 404 30.573 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 15:54:29 GMT -error-message: Not found
+remote-addr - PATCH /api/transactions/685d6ad1f1e833fb498b84d1 200 4839.617 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:54:47 GMT
+remote-addr - GET /api/transactions 200 154.697 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:56:19 GMT
+remote-addr - POST /api/user/signup 404 19.761 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 15:57:37 GMT -error-message: Not found
+remote-addr - POST /api/user/signup 500 53.995 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 15:58:40 GMT -error-message: User already exists
+remote-addr - POST /api/user/signup 201 4210.112 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 15:59:38 GMT
+remote-addr - POST /api/user/verify-email 500 17.781 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 16:00:28 GMT -error-message: Invalid or expired verification code
+remote-addr - POST /api/user/login 200 123.067 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 16:01:28 GMT
+remote-addr - POST /api/user/forgot-password 200 4836.836 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 16:02:45 GMT
+remote-addr - POST /api/user/reset-password/84779404c71b8a6b535adbec4464297e266e56ed 500 13.774 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 16:04:00 GMT -error-message: Invalid or expired reset token
+remote-addr - POST /api/user/reset-password/f6f631fbf7940d5cf5e5956f32e9113e31101659 200 4408.530 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 16:05:40 GMT
+remote-addr - POST /api/users/login 404 39.827 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 16:17:56 GMT -error-message: Not found
+remote-addr - POST /api/user/login 200 241.772 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 16:18:02 GMT
+remote-addr - POST /api/bank 500 89.474 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 16:18:21 GMT -error-message: Bank record already exists.
+remote-addr - POST /api/user/login 500 24.328 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 17:15:09 GMT -error-message: authService.loginUser is not a function
+remote-addr - POST /api/user/login 200 250.671 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:40:57 GMT
+remote-addr - POST /api/bank 500 96.289 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 17:42:24 GMT -error-message: Bank record already exists.
+remote-addr - POST /api/bank 201 54.433 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:42:34 GMT
+remote-addr - PUT /api/bank 200 296.152 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:47:02 GMT
+remote-addr - GET /api/bank 200 35.212 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:48:18 GMT
+remote-addr - DELETE /api/bank 200 27.774 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:49:09 GMT
+remote-addr - POST /api/bank 400 119.749 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 17:54:37 GMT -error-message: "body.bankId" is not allowed
+remote-addr - POST /api/bank 500 64.136 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 17:54:44 GMT -error-message: Bank record already exists.
+remote-addr - POST /api/bank 201 90.429 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 17:54:51 GMT
+remote-addr - POST /api/bank 401 36.332 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 18:03:14 GMT -error-message: -
+remote-addr - POST /api/user/login 500 6.511 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 18:03:30 GMT -error-message: Cannot read properties of undefined (reading 'loginUser')
+remote-addr - POST /api/user/login 200 190.510 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 18:05:47 GMT
+remote-addr - POST /api/user/login 500 47.197 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 18:07:10 GMT -error-message: Cannot read properties of undefined (reading 'loginUser')
+remote-addr - POST /api/user/login 500 50.520 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 18:26:47 GMT -error-message: Cannot read properties of undefined (reading 'loginUser')
+remote-addr - POST /api/user/login 500 32.559 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 20:38:54 GMT -error-message: Cannot read properties of undefined (reading 'loginUser')
+remote-addr - POST /api/user/login 500 46.296 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 20:40:07 GMT -error-message: Cannot read properties of undefined (reading 'loginUser')
+remote-addr - POST /api/user/login 200 379.304 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 20:54:06 GMT
+remote-addr - POST /api/user/login 200 220.379 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 20:55:19 GMT
+remote-addr - POST /api/user/signup 500 210.473 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 20:55:39 GMT -error-message: E11000 duplicate key error collection: brown.users index: phone_number_1 dup key: { phone_number: "+251951383935" }
+remote-addr - POST /api/user/signup 201 3913.411 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 20:55:51 GMT
+remote-addr - POST /api/user/signup 400 15.122 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 20:56:10 GMT -error-message: "body.last_name" is required
+remote-addr - POST /api/user/login 400 42.596 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 20:57:30 GMT -error-message: "body.phone_number" is not allowed
+remote-addr - POST /api/user/login 200 191.307 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 20:57:37 GMT
+remote-addr - POST /api/transactions 404 39.814 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 21:05:12 GMT -error-message: Not found
+remote-addr - POST /api/transaction 201 85.395 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:05:22 GMT
+remote-addr - POST /api/payment/process 200 5407.887 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:07:58 GMT
+remote-addr - POST /api/payment/process 401 0.848 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 21:09:26 GMT -error-message: -
+remote-addr - POST /api/user/login 200 108.776 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:09:40 GMT
+remote-addr - GET /api/payment/transactions 200 1594.419 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:10:13 GMT
+remote-addr - POST /api/payment/process 200 2300.501 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:13:02 GMT
+remote-addr - POST /api/payment/process 200 994.466 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:14:22 GMT
+remote-addr - POST /api/payment/verify/TX-HRGSPTB8N1HVFM1 404 6.318 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 21:15:23 GMT -error-message: Not found
+remote-addr - GET /api/payment/verify/TX-HRGSPTB8N1HVFM1 200 4799.899 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:15:51 GMT
+remote-addr - GET /api/payment/verify/TX-HRGSPTB8N1HVFM1 404 19.048 ms Thunder Client (https://www.thunderclient.com)  Thu, 26 Jun 2025 21:16:06 GMT -error-message: Not found
+remote-addr - POST /api/payment/verify/TX-HRGSPTB8N1HVFM1 200 1246.993 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:16:12 GMT
+remote-addr - GET /api/payment/balance 200 1495.431 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:17:39 GMT
+remote-addr - GET /api/payment/banks 200 3143.117 ms Thunder Client (https://www.thunderclient.com) Thu, 26 Jun 2025 21:18:25 GMT
+remote-addr - POST /api/user/login 200 296.349 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:24:23 GMT
+remote-addr - POST /api/user/login 200 251.548 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:29:17 GMT
+remote-addr - GET /api/bank 200 210.790 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:30:35 GMT
+remote-addr - POST /api/user/login 200 186.062 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:38:12 GMT
+remote-addr - GET /api/bank 401 26.139 ms Thunder Client (https://www.thunderclient.com)  Fri, 27 Jun 2025 21:39:42 GMT -error-message: -
+remote-addr - POST /api/user/login 200 220.821 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:39:50 GMT
+remote-addr - GET /api/bank 200 22.674 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:39:56 GMT
+remote-addr - GET /api/transaction 200 141.766 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:42:07 GMT
+remote-addr - GET /api/payment/transactions 200 1047.912 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:43:29 GMT
+remote-addr - POST /api/user/login 200 287.645 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:53:58 GMT
+remote-addr - POST /api/bank 401 31.037 ms Thunder Client (https://www.thunderclient.com)  Fri, 27 Jun 2025 21:56:54 GMT -error-message: -
+remote-addr - POST /api/user/login 200 167.412 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:57:04 GMT
+remote-addr - POST /api/bank 201 64.758 ms Thunder Client (https://www.thunderclient.com) Fri, 27 Jun 2025 21:57:14 GMT

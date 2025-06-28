@@ -1,33 +1,24 @@
 const express = require("express");
-const {
-    processPayment,
-    verifyPayment,
-    getAllTransactions,
-    getWalletBalance,
-    getBanks
-} = require("../controllers/Payment_Controller");
-const {
-    paymentSchema,
-    txRefSchema
-} = require("../validations/payment.validation");
+const { PaymentController } = require("../controllers"); // Import the PaymentController
+const { paymentValidation } = require('../validations'); // Import payment validation
 const { protect } = require("../middleware/authMiddleware");
 const validate = require("../middleware/validate");
 
 const router = express.Router();
 
 // Process payment
-router.post("/process", protect, validate(paymentSchema), processPayment);
+router.post("/process", protect, validate(paymentValidation.paymentSchema), PaymentController.processPayment);
 
 // Verify payment
-router.get("/verify/:tx_ref", validate(txRefSchema), verifyPayment);
+router.post("/verify/:tx_ref", validate(paymentValidation.txRefSchema), PaymentController.verifyPayment);
 
 // Get all transactions
-router.get("/transactions", protect, getAllTransactions);
+router.get("/transactions", protect, PaymentController.getAllTransactions);
 
 // Get wallet balance
-router.get("/balance", protect, getWalletBalance);
+router.get("/balance", protect, PaymentController.getWalletBalance);
 
 // Get list of banks
-router.get("/banks", protect, getBanks);
+router.get("/banks", protect, PaymentController.getBanks);
 
 module.exports = router;

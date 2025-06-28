@@ -1,4 +1,4 @@
-const bankService = require("../services/bank.service");
+const { bankService } = require('../services');
 const catchAsync = require("../utils/catchAsync");
 const httpStatus = require("http-status");
 

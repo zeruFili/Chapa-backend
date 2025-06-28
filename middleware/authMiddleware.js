@@ -19,12 +19,7 @@ const protect = async (req, res, next) => {
 				return res.status(401).json({ message: "User not found" });
 			}
 
-			console.log("User information:", {
-				first_name: user.first_name,
-				last_name: user.last_name,
-				email: user.email,
-				phone_number: user.phone_number,
-			});
+		
 
 			// Attach user information to req.user
 			req.user = {
@@ -44,13 +39,13 @@ const protect = async (req, res, next) => {
 			throw error;
 		}
 	} catch (error) {
-		console.log("Error in protect middleware", error.message);
+		
 		return res.status(401).json({ message: "Unauthorized - Invalid access token" });
 	}
 };
 
 const adminValidator = (req, res, next) => {
-	console.log("User role:", req.user.role);
+	
 	if (req.user && req.user.role === "admin") {
 		next();
 	} else {

@@ -1,9 +1,11 @@
-const Transaction = require('../models/Transaction_Model'); // Adjust the path as necessary
+// Transaction_Controller.js
+
+const { TransactionModel } = require('../models'); // Import TransactionModel from the index file
 const request = require('request');
 
 // Create Transaction
 const createTransaction = async (senderId, amount, receiver, description, account_name, account_number, currency, bank_code) => {
-    const transaction = await Transaction.create({
+    const transaction = await TransactionModel.create({
         sender: senderId,
         amount,
         receiver,
@@ -18,7 +20,7 @@ const createTransaction = async (senderId, amount, receiver, description, accoun
 
 // Update Transaction Status
 const updateTransactionStatus = async (transactionId, status) => {
-    const transaction = await Transaction.findById(transactionId);
+    const transaction = await TransactionModel.findById(transactionId);
     if (!transaction) {
         throw new Error("Transaction not found");
     }
@@ -86,7 +88,7 @@ const updateTransactionStatus = async (transactionId, status) => {
 
 // Get All Transactions
 const getAllTransactions = async () => {
-    const transactions = await Transaction.find()
+    const transactions = await TransactionModel.find()
         .populate('sender', 'first_name last_name')
         .populate('receiver', 'first_name last_name')
         .sort({ createdAt: -1 });

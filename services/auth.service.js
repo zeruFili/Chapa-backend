@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const User = require("../models/User_Model.js");
+const { UserModel } = require("../models"); // Import UserModel from the index file
 const {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
@@ -10,7 +10,7 @@ const generateTokens = require("../utils/generateTokens.js"); // Token generatio
 const jwt = require("jsonwebtoken");
 
 const createUser = async (email, password, first_name, last_name, phone_number) => {
-  const userAlreadyExists = await User.findOne({ email });
+  const userAlreadyExists = await UserModel.findOne({ email });
   if (userAlreadyExists) {
     throw new Error("User already exists");
   }
@@ -18,7 +18,7 @@ const createUser = async (email, password, first_name, last_name, phone_number) 
   const hashedPassword = await bcrypt.hash(password, 10);
   const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const user = new User({
+  const user = new UserModel({
     email,
     password: hashedPassword,
     first_name,
@@ -40,7 +40,7 @@ const createUser = async (email, password, first_name, last_name, phone_number) 
 };
 
 const verifyUserEmail = async (code) => {
-  const user = await User.findOne({
+  const user = await UserModel.findOne({
     verificationToken: code,
     verificationTokenExpiresAt: { $gt: Date.now() },
   });
@@ -58,7 +58,7 @@ const verifyUserEmail = async (code) => {
 };
 
 const loginUser = async (email, password) => {
-  const user = await User.findOne({ email });
+  const user = await UserModel.findOne({ email });
   if (!user) {
     throw new Error("Invalid credentials");
   }
@@ -78,7 +78,7 @@ const loginUser = async (email, password) => {
 const logoutUser = async (refreshToken) => {
   if (refreshToken) {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const user = await User.findById(decoded.userId);
+    const user = await UserModel.findById(decoded.userId);
     if (user) {
       user.refreshToken = null; // Clear refresh token
       await user.save();
@@ -87,7 +87,7 @@ const logoutUser = async (refreshToken) => {
 };
 
 const resetUserPassword = async (token, password) => {
-  const user = await User.findOne({
+  const user = await UserModel.findOne({
     resetPasswordToken: token,
     resetPasswordExpiresAt: { $gt: Date.now() }, // Ensure token is still valid
   });
@@ -106,7 +106,7 @@ const resetUserPassword = async (token, password) => {
 };
 
 const sendResetEmail = async (email, resetToken) => {
-  const user = await User.findOne({ email });
+  const user = await UserModel.findOne({ email });
   if (!user) {
     throw new Error("User not found");
   }
@@ -119,7 +119,7 @@ const sendResetEmail = async (email, resetToken) => {
 };
 
 const deleteUser = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await UserModel.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
@@ -127,7 +127,7 @@ const deleteUser = async (userId) => {
 };
 
 const updateUser = async (userId, updates) => {
-  const user = await User.findById(userId);
+  const user = await UserModel.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
@@ -138,7 +138,7 @@ const updateUser = async (userId, updates) => {
 };
 
 const getUserById = async (userId) => {
-  const user = await User.findById(userId).select("-password");
+  const user = await UserModel.findById(userId).select("-password");
   if (!user) {
     throw new Error("User not found");
   }
@@ -146,7 +146,7 @@ const getUserById = async (userId) => {
 };
 
 const getAllUsers = async () => {
-  return await User.find({}, '-password');
+  return await UserModel.find({}, '-password');
 };
 
 module.exports = {

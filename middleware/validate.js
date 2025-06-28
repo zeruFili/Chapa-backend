@@ -17,7 +17,7 @@ const validate = (schema) => (req, res, next) => {
     const errors = error.details.map((detail) => detail.message).join(', '); // Collect error messages
     return next(new ApiError(400, errors)); // Pass the error to the next middleware
   }
-  console.log("Validating object:", object);
+  
   next(); // No errors, proceed to the next middleware
 };
 

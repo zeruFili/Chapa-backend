@@ -1,10 +1,12 @@
 const User = require("../models/User_Model.js");
-const authService = require("../services/auth.service.js");
+const { authService } = require('../services');
 const setCookies = require("../utils/setCookies.js"); // Cookie setting logic
 const catchAsync = require("../utils/catchAsync.js");
 const crypto = require("crypto");
 const httpStatus = require("http-status"); // Assuming you're using a package for HTTP status codes
 
+
+console.log("auth services" ,authService); 
 const signup = catchAsync(async (req, res) => {
   const { email, password, first_name, last_name, phone_number } = req.body;
 

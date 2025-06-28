@@ -1,52 +1,49 @@
 const express = require("express");
-const {
-   signup,
-  verifyEmail,
-  login,
-  logout,
-  forgotPassword,
-  resetPassword,
-  deleteUser,
-  updateUserProfile,
-  getMyProfile,
-  getAllUsers,
-} = require("../controllers/User_Controller"); // Import all required controller functions
+const { UserController } = require("../controllers"); // Import the UserController
 
 const {
-  signupSchema,
-  loginSchema,
-  updateUserProfileSchema,
-  deleteUserSchema,
-  forgotPasswordSchema,
-	resetPasswordSchema,
-	verifyEmailSchema
+    signupSchema,
+    loginSchema,
+    updateUserProfileSchema,
+    deleteUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    verifyEmailSchema
 } = require("../validations/user.validation");
+
 const { protect, adminValidator } = require("../middleware/authMiddleware");
 const validate = require("../middleware/validate");
 
 const router = express.Router();
 
 // User registration
-router.post("/signup", validate(signupSchema), signup);
+router.post("/signup", validate(signupSchema), UserController.signup);
 
 // User login
-router.post("/login", validate(loginSchema), login);
+router.post("/login", validate(loginSchema), UserController.login);
 
 // Get user profile
-router.get("/profile", protect, getMyProfile);
+router.get("/profile", protect, UserController.getMyProfile);
 
 // Update user profile
-router.put("/profile", protect, validate(updateUserProfileSchema), updateUserProfile);
+router.put("/profile", protect, validate(updateUserProfileSchema), UserController.updateUserProfile);
 
 // Delete user (admin only)
-router.delete("/:id", protect, adminValidator, validate(deleteUserSchema), deleteUser);
+router.delete("/:id", protect, adminValidator, validate(deleteUserSchema), UserController.deleteUser);
 
 // Get all users
-router.get("/", protect, adminValidator, getAllUsers);
+router.get("/", protect, adminValidator, UserController.getAllUsers);
 
-router.post("/logout", logout);
-router.post("/verify-email", validate(verifyEmailSchema) , verifyEmail);
-router.post("/forgot-password",validate(forgotPasswordSchema) , forgotPassword);
-router.post("/reset-password/:token", validate(resetPasswordSchema) , resetPassword);
+// Logout user
+router.post("/logout", UserController.logout);
+
+// Verify email
+router.post("/verify-email", validate(verifyEmailSchema), UserController.verifyEmail);
+
+// Forgot password
+router.post("/forgot-password", validate(forgotPasswordSchema), UserController.forgotPassword);
+
+// Reset password
+router.post("/reset-password/:token", validate(resetPasswordSchema), UserController.resetPassword);
 
 module.exports = router;

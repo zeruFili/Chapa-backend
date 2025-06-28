@@ -1,4 +1,4 @@
-const TransactionService = require('../services/transaction.service'); // Import the service
+const { transactionService } = require('../services');
 const httpStatus = require("http-status");
 
 // Create Transaction
@@ -7,7 +7,7 @@ const createTransaction = async (req, res) => {
         const { amount, receiver, description, account_name, account_number, currency, bank_code } = req.body;
         const sender = req.user._id;
 
-        const transaction = await TransactionService.createTransaction(sender, amount, receiver, description, account_name, account_number, currency, bank_code);
+        const transaction = await transactionService.createTransaction(sender, amount, receiver, description, account_name, account_number, currency, bank_code);
         return res.status(httpStatus.default.CREATED).json(transaction);
     } catch (error) {
         return res.status(httpStatus.default.INTERNAL_SERVER_ERROR).json({ message: "Failed to create transaction", error: error.message });
@@ -20,7 +20,7 @@ const updateTransactionStatus = async (req, res) => {
         const { transactionId } = req.params;
         const { status } = req.body;
 
-        const transaction = await TransactionService.updateTransactionStatus(transactionId, status);
+        const transaction = await transactionService.updateTransactionStatus(transactionId, status);
         return res.json(transaction);
     } catch (error) {
         console.error(error);
@@ -31,7 +31,7 @@ const updateTransactionStatus = async (req, res) => {
 // Get All Transactions
 const getAllTransactions = async (req, res) => {
     try {
-        const transactions = await TransactionService.getAllTransactions();
+        const transactions = await transactionService.getAllTransactions();
         
         const response = transactions.map(transaction => ({
             _id: transaction._id,
