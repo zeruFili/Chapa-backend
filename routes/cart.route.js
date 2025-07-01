@@ -1,31 +1,21 @@
 const express = require("express");
-const {
-    getCartProducts,
-    addToCart,
-    removeAllFromCart,
-    updateQuantity
-} = require("../controllers/cart.controller.js");
+const { cartController } = require("../controllers"); // Import the cartController from the controllers index file
 const { protectRoute } = require("../middleware/auth.middleware.js");
 const validate = require('../middleware/validate'); // Your validation middleware
-const {
-    addToCartSchema,
-    updateQuantitySchema,
-    removeAllFromCartSchema,
-    getCartProductsSchema
-} = require('../validations/cart.validation'); // Assuming you created this
+const { cartValidation } = require('../validations'); // Import cart validation
 
 const router = express.Router();
 
 // Route for getting cart products
-router.get("/", protectRoute, validate(getCartProductsSchema), getCartProducts);
+router.get("/", protectRoute, validate(cartValidation.getCartProductsSchema), cartController.getCartProducts);
 
 // Route for adding a product to the cart
-router.post("/", protectRoute, validate(addToCartSchema), addToCart);
+router.post("/", protectRoute, validate(cartValidation.addToCartSchema), cartController.addToCart);
 
 // Route for removing all items from the cart or a specific product
-router.delete("/", protectRoute, validate(removeAllFromCartSchema), removeAllFromCart);
+router.delete("/", protectRoute, validate(cartValidation.removeAllFromCartSchema), cartController.removeAllFromCart);
 
 // Route for updating the quantity of a product in the cart
-router.patch("/:id", protectRoute, validate(updateQuantitySchema), updateQuantity);
+router.patch("/:id", protectRoute, validate(cartValidation.updateQuantitySchema), cartController.updateQuantity);
 
 module.exports = router;

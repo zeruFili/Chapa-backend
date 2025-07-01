@@ -1,5 +1,5 @@
-const User = require("../models/user.model.js");
-const authService = require("../services/auth.service.js");
+const { userModel } = require("../models"); // Use destructuring to import userModel
+const { authService } = require("../services");
 const setCookies = require("../utils/setCookies.js"); // Cookie setting logic
 const catchAsync = require("../utils/catchAsync.js");
 const crypto = require("crypto");
@@ -86,7 +86,7 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 const getProfile = catchAsync(async (req, res) => {
-  const user = await User.findById(req.userId).select("-password");
+  const user = await userModel.findById(req.userId).select("-password");
   if (!user) {
     return res.status(httpStatus.default.BAD_REQUEST).json({ success: false, message: "User not found" });
   }

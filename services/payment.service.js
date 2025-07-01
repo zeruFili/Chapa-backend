@@ -1,29 +1,30 @@
-const Order = require("../models/order.model.js");
+const { orderModel, cartModel } = require("../models"); // Use destructuring to import orderModel and cartModel
 const request = require('request');
 const chapa = require("../lib/chapa.js");
-const Cart = require("../models/cart.model.js");
 
 const createCheckoutSession = async (cartId, userId) => {
-    const cart = await Cart.findById(cartId).populate('cartItems.product');
+    const cart = await cartModel.findById(cartId).populate('cartItems.product'); // Use cartModel here
     if (!cart) throw new Error("Cart not found");
 
     let totalAmount = 0;
 
     const lineItems = cart.cartItems.map((item) => {
-        const amount = Math.round(item.product.price * 100); // Amount in cents
+        const amount = Math.round(item.product.price ); // Amount in cents
         totalAmount += amount * item.quantity;
+        // price = amount/100
 
         return {
             name: item.product.name,
             image: item.product.image,
-            amount: amount,
+            price: amount ,
             quantity: item.quantity,
         };
     });
 
     // Generate transaction reference
     const tx_ref = await chapa.genTxRef();
-    // console.log(tx_ref);
+
+    console.log(tx_ref);
 
     // Initialize transaction with Chapa
     const options = {
@@ -86,12 +87,12 @@ const verifyPayment = async (tx_ref, cartId) => {
 
             const body = JSON.parse(response.body);
             if (body.status === "success") {
-                const cart = await Cart.findById(cartId).populate('cartItems.product');
+                const cart = await cartModel.findById(cartId).populate('cartItems.product'); // Use cartModel here
                 if (!cart) {
                     return reject(new Error("Cart not found"));
                 }
 
-                const newOrder = new Order({
+                const newOrder = new orderModel({ // Use orderModel here
                     user: cart.user,
                     products: cart.cartItems.map((item) => ({
                         product: item.product._id,

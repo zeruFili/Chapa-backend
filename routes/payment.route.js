@@ -1,21 +1,15 @@
 const express = require("express");
 const { protectRoute } = require("../middleware/auth.middleware.js");
 const validate = require('../middleware/validate'); // Your validation middleware
-const {
-    createCheckoutSession,
-    checkoutSuccess
-} = require("../controllers/payment.controller.js");
-const {
-    createCheckoutSessionSchema,
-    checkoutSuccessSchema
-} = require('../validations/payment.validation'); // Import payment validation schemas
+const { paymentController } = require("../controllers"); // Import the paymentController from the controllers index file
+const { paymentValidation } = require('../validations'); // Import payment validation
 
 const router = express.Router();
 
 // Route for creating a checkout session
-router.post("/create-checkout-session", protectRoute, validate(createCheckoutSessionSchema), createCheckoutSession);
+router.post("/create-checkout-session", protectRoute, validate(paymentValidation.createCheckoutSessionSchema), paymentController.createCheckoutSession);
 
 // Route for payment success verification
-router.post("/checkout-success", protectRoute, validate(checkoutSuccessSchema), checkoutSuccess);
+router.post("/checkout-success", protectRoute, validate(paymentValidation.checkoutSuccessSchema), paymentController.checkoutSuccess);
 
 module.exports = router;

@@ -1,32 +1,18 @@
 const express = require("express");
-const {
-	login,
-	logout,
-	signup,
-	verifyEmail,
-	forgotPassword,
-	resetPassword,
-	checkAuth,
-} = require("../controllers/auth.controller"); 
-const {
-	signupSchema,
-	loginSchema,
-	forgotPasswordSchema,
-	resetPasswordSchema,
-	verifyEmailSchema,
-} = require("../validations/auth.validation");
-const { verifyToken } = require("../middleware/verifyToken");
+const { authController } = require("../controllers"); // Import the authController from the controllers index file
+
+const { authValidation } = require('../validations'); 
 const validate = require('../middleware/validate');
-const { valid } = require("joi");
 
 const router = express.Router();
 
-// router.get("/check-auth",  verifyToken, checkAuth);
-router.post("/signup", validate(signupSchema) ,signup);
-router.post("/login", validate(loginSchema) ,login);
-router.post("/logout", logout);
-router.post("/verify-email", validate(verifyEmailSchema) , verifyEmail);
-router.post("/forgot-password",validate(forgotPasswordSchema) , forgotPassword);
-router.post("/reset-password/:token", validate(resetPasswordSchema) , resetPassword);
+// Uncomment this if you want to use it
+// router.get("/check-auth", verifyToken, checkAuth);
+router.post("/signup", validate(authValidation.signupSchema), authController.signup);
+router.post("/login", validate(authValidation.loginSchema), authController.login);
+router.post("/logout", authController.logout);
+router.post("/verify-email", validate(authValidation.verifyEmailSchema), authController.verifyEmail);
+router.post("/forgot-password", validate(authValidation.forgotPasswordSchema), authController.forgotPassword);
+router.post("/reset-password/:token", validate(authValidation.resetPasswordSchema), authController.resetPassword);
 
 module.exports = router;

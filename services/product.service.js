@@ -1,9 +1,9 @@
-const Product = require("../models/product.model.js");
+const { productModel } = require("../models"); // Use destructuring to import productModel
 
 const createProduct = async (data) => {
   const { name, description, price, image, category, amount } = data;
 
-  const product = new Product({
+  const product = new productModel({ // Use productModel here
     name,
     description,
     price,
@@ -17,34 +17,34 @@ const createProduct = async (data) => {
 };
 
 const getAllProducts = async () => {
-  return await Product.find({});
+  return await productModel.find({}); // Use productModel here
 };
 
 const getFeaturedProducts = async () => {
-  return await Product.find({ isFeatured: true }).lean();
+  return await productModel.find({ isFeatured: true }).lean(); // Use productModel here
 };
 
 const getProductById = async (id) => {
-  return await Product.findById(id);
+  return await productModel.findById(id); // Use productModel here
 };
 
 const updateProduct = async (id, updates) => {
-  return await Product.findByIdAndUpdate(id, updates, { new: true });
+  return await productModel.findByIdAndUpdate(id, updates, { new: true }); // Use productModel here
 };
 
 const deleteProduct = async (id) => {
-  return await Product.findByIdAndDelete(id);
+  return await productModel.findByIdAndDelete(id); // Use productModel here
 };
 
 const getRecommendedProducts = async () => {
-  return await Product.aggregate([
+  return await productModel.aggregate([ // Use productModel here
     { $sample: { size: 4 } },
     { $project: { _id: 1, name: 1, description: 1, image: 1, price: 1 } },
   ]);
 };
 
 const getProductsByCategory = async (category) => {
-  return await Product.find({ category });
+  return await productModel.find({ category }); // Use productModel here
 };
 
 const toggleFeaturedStatus = async (id) => {

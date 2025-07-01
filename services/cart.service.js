@@ -1,8 +1,7 @@
-const Cart = require("../models/cart.model.js");
-const Product = require("../models/product.model.js");
+const { cartModel, productModel } = require("../models"); // Use destructuring to import cartModel and productModel
 
 const getCartProducts = async (userId) => {
-    const cart = await Cart.findOne({ user: userId }).populate('cartItems.product');
+    const cart = await cartModel.findOne({ user: userId }).populate('cartItems.product');
     if (!cart) throw new Error("Cart not found");
 
     return cart.cartItems.map(item => ({
@@ -12,12 +11,12 @@ const getCartProducts = async (userId) => {
 };
 
 const addToCart = async (userId, productId) => {
-    const product = await Product.findById(productId);
+    const product = await productModel.findById(productId); // Use productModel here
     if (!product) throw new Error("Product not found");
 
-    let cart = await Cart.findOne({ user: userId });
+    let cart = await cartModel.findOne({ user: userId }); // Use cartModel here
     if (!cart) {
-        cart = new Cart({ user: userId, cartItems: [] });
+        cart = new cartModel({ user: userId, cartItems: [] }); // Use cartModel here
     }
 
     const existingItem = cart.cartItems.find(item => item.product.equals(productId));
@@ -40,7 +39,7 @@ const addToCart = async (userId, productId) => {
 };
 
 const removeAllFromCart = async (userId, productId) => {
-    let cart = await Cart.findOne({ user: userId });
+    let cart = await cartModel.findOne({ user: userId }); // Use cartModel here
     if (!cart) throw new Error("Cart not found");
 
     if (!productId) {
@@ -54,13 +53,13 @@ const removeAllFromCart = async (userId, productId) => {
 };
 
 const updateQuantity = async (userId, productId, quantity) => {
-    let cart = await Cart.findOne({ user: userId });
+    let cart = await cartModel.findOne({ user: userId }); // Use cartModel here
     if (!cart) throw new Error("Cart not found");
 
     const existingItem = cart.cartItems.find(item => item.product.equals(productId));
     if (!existingItem) throw new Error("Product not found in cart");
 
-    const product = await Product.findById(productId);
+    const product = await productModel.findById(productId); // Use productModel here
     if (!product) throw new Error("Product not found");
 
     if (quantity === 0) {
